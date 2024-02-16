@@ -1,0 +1,55 @@
+GOTOX CLEARED ----------------------------------------------------------------------------------------------------------------------------------------------------
+
+    Screen RAM byte 0
+            Bits 7 - 0      Lower 8 bits of character number, the same as the VIC-II and VIC-III
+    Screen RAM byte 1
+            Bits 7 – 5      Trim pixels from right-hand side of character (bits 0 – 2)
+            Bits 4 - 0      Upper 5 bits of character number (bits 8 – 12)
+
+    Colour RAM byte 0
+            Bit  7          Vertical flip
+            Bit  6          Horizontal flip
+            Bit  5          Alpha blend (leave 0)
+            Bit  4          GOTOX is 0. Must be set to 0 for displaying characters
+            Bit  3          4BPP
+            Bit  2          Trim pixels from right-hand side of character (bit 3)
+            Bits 1 – 0      Number of pixels to trim from top or bottom of character
+    Colour RAM byte 1
+        VIC-II:
+            Bits 7 – 4      Upper 4 bits of colour of character
+            Bits 3 – 0      Low 4 bits of colour of character
+        VIC-III:
+            Bit  7          Hardware underlining of character
+            Bit  6          Hardware bold attribute of character *
+            Bit  5          Hardware reverse video enable of character *
+            Bit  4          Hardware blink of character
+            Bits 3 – 0      Low 4 bits of colour of character
+ 
+GOTOX SET ----------------------------------------------------------------------------------------------------------------------------------------------------
+
+    Screen RAM 0
+            Bits 7 - 0      Lower 8 bits of new X position to start drawing the next character.
+    Screen RAM 1
+            Bits 7 - 5      FCM Character data Y offset: 0 for no offset, !0 = 8 × the value is added to the character address.
+            Bits 4 - 3      RESERVED, set to 0
+            Bits 1 - 0      Upper 2 bits of new X position
+
+    Colour RAM 0
+            Bit  7          background/transparent pixels will not be drawn for subsequent characters, allowing layering
+            Bit  6          the following characters will be rendered as background, allowing sprites to appear in front of them, even when sprites are set to background.
+            Bit  5          RESERVED, set to 0
+            Bit  4          GOTOX is 1, so not displaying characters.
+            Bit  3          ROWMASK
+            Bit  2          the following characters will be rendered as foreground, regardless of their colouring, allowing sprites to appear behind them.
+            Bits 1 - 0      RESERVED, set to 0
+    Colour RAM 1
+            Bits 7 - 0      Pixel row mask flags
+
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+* 4BPP                      Full-Colour characters use 4 bits per pixel and are 16 pixels wide (less any right-hand side trim bits),
+                            instead of using 8 bits per pixel. When using 8 bits per pixels, the characters are the normal 8 pixels wide.
+** ROWMASK                  If set, then the pixel row mask is used to determine which pixel rows of the following characters should be rendered.
+                            This can be used to vertically scroll characters using the Raster-Rewrite Buffer, by drawing each character twice, once
+                            shifted down on the screen line on which it appears, and a second time, shifted up in the following screen line, and masked so that
+                            only the pixel rows belonging to the scrolled character are displayed, and not data from either before or after that character’s data.
