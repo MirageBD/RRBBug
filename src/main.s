@@ -75,13 +75,11 @@ entry_main
 
 		lda #<(20+maxsprites*4+1+1)						; CHRCOUNT - Number of 16-bit characters to display per row
 		sta $d05e										; display_row_width in VHDL
-		sta $c000
 		lda #>(20+maxsprites*4+1+1)
 		asl
 		asl
 		asl
 		asl
-		sta $c001
 		sta $d063										; ..xx.... high bits of CHRCOUNT
 
 		lda #<rrbscreenwidth							; LINESTEPLSB - virtual row width - number of bytes to advance between each text row 
