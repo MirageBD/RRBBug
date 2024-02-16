@@ -49,14 +49,6 @@ default: all
 
 OBJS = $(EXE_DIR)/boot.o $(EXE_DIR)/main.o
 
-BINFILES  = $(BIN_DIR)/agony_chars0.bin
-BINFILES += $(BIN_DIR)/agony_screen0.bin
-BINFILES += $(BIN_DIR)/agony_pal0.bin
-
-BINFILESMC  = $(BIN_DIR)/agony_chars0.bin.addr.mc
-BINFILESMC += $(BIN_DIR)/agony_screen0.bin.addr.mc
-BINFILESMC += $(BIN_DIR)/agony_pal0.bin.addr.mc
-
 # -----------------------------------------------------------------------------
 
 $(BIN_DIR)/agony_chars0.bin: $(BIN_DIR)/agony.bin
@@ -65,33 +57,20 @@ $(BIN_DIR)/agony_chars0.bin: $(BIN_DIR)/agony.bin
 $(EXE_DIR)/boot.o:	$(SRC_DIR)/boot.s \
 					$(SRC_DIR)/main.s \
 					$(SRC_DIR)/rrb.s \
-					$(SRC_DIR)/irqload.s \
-					$(SRC_DIR)/decruncher.s \
-					$(SRC_DIR)/iffl.s \
 					$(SRC_DIR)/macros.s \
 					Makefile Linkfile
 	$(AS) $(ASFLAGS) -o $@ $<
-
-$(BIN_DIR)/alldata.bin: $(BINFILES)
-	$(MEGAADDRESS) $(BIN_DIR)/agony_chars0.bin      00010000
-	$(MEGAADDRESS) $(BIN_DIR)/agony_screen0.bin     0000e000
-	$(MEGAADDRESS) $(BIN_DIR)/agony_pal0.bin        00000400
-	$(MEGACRUNCH) $(BIN_DIR)/agony_chars0.bin.addr
-	$(MEGACRUNCH) $(BIN_DIR)/agony_screen0.bin.addr
-	$(MEGACRUNCH) $(BIN_DIR)/agony_pal0.bin.addr
-	$(MEGAIFFL) $(BINFILESMC) $(BIN_DIR)/alldata.bin
 
 $(EXE_DIR)/boot.prg.addr.mc: $(BINFILES) $(EXE_DIR)/boot.o Linkfile
 	$(LD) -Ln $(EXE_DIR)/boot.maptemp --dbgfile $(EXE_DIR)/boot.dbg -C Linkfile -o $(EXE_DIR)/boot.prg $(EXE_DIR)/boot.o
 	$(MEGAADDRESS) $(EXE_DIR)/boot.prg 00000800
 	$(MEGACRUNCH) -e 00000800 $(EXE_DIR)/boot.prg.addr
 
-$(EXE_DIR)/rrb.d81: $(EXE_DIR)/boot.prg.addr.mc $(BIN_DIR)/alldata.bin
+$(EXE_DIR)/rrb.d81: $(EXE_DIR)/boot.prg.addr.mc
 	$(RM) $@
 	$(CC1541) -n "rrb" -i " 2024" -d 19 -v\
 	 \
-	 -f "rrb" -w $(EXE_DIR)/boot.prg.addr.mc \
-	 -f "rrb.ifflcrch" -w $(BIN_DIR)/alldata.bin \
+	 -f "rrbbug" -w $(EXE_DIR)/boot.prg.addr.mc \
 	$@
 
 # -----------------------------------------------------------------------------
@@ -99,7 +78,7 @@ $(EXE_DIR)/rrb.d81: $(EXE_DIR)/boot.prg.addr.mc $(BIN_DIR)/alldata.bin
 run: $(EXE_DIR)/rrb.d81
 
 ifeq ($(megabuild), 1)
-	$(MEGAFTP) -c "put D:\Mega\NCMRRB\exe\rrb.d81 rrb.d81" -c "quit"
+	$(MEGAFTP) -c "put D:\Mega\RRBBug\exe\rrb.d81 rrb.d81" -c "quit"
 	$(EL) -m RRB.D81 -r $(EXE_DIR)/boot.prg.addr.mc
 ifeq ($(attachdebugger), 1)
 	m65dbg --device /dev/ttyS2

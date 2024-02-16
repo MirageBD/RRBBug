@@ -62,28 +62,9 @@ entry_main
 		lda $dc0d
 		lda $dd0d
 
-		lda #$00										; disable IRQ raster interrupts because C65 uses raster interrupts in the ROM
-		sta $d01a
-
-		lda #$00
-		sta $d012
-		lda #<fastload_irq_handler
-		ldx #>fastload_irq_handler
-		sta $fffe
-		stx $ffff
-
-		lda #$01										; ACK
-		sta $d01a
-
 		cli
 
-		jsr fl_init
-		jsr fl_waiting
-		FLOPPY_IFFL_FAST_LOAD_INIT "RRB.IFFLCRCH"
-		FLOPPY_IFFL_FAST_LOAD
-		FLOPPY_IFFL_FAST_LOAD
-		FLOPPY_IFFL_FAST_LOAD
-		jsr fl_exit
+
 
 		sei
 
