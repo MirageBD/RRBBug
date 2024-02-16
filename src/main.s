@@ -152,6 +152,15 @@ irq1
 
 		inc $d020										; do something to show that IRQ is still running
 
+		ldy #04
+		ldx #0
+:		dex
+		bne :-
+		dey
+		bne :-
+
+		dec $d020
+
 		pla
 		asl $d019
 		rti
