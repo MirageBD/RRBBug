@@ -1,6 +1,5 @@
 screen					= $06000						; currently $3000+ big
 palette					= $00400
-charmem					= $10000
 
 zpscrdst				= $f0
 zpcoldst				= $f4
@@ -43,28 +42,9 @@ entry_main
 		sta $d02f
 		eom
 
-		;lda #%10000000									; force PAL mode, because I can't be bothered with fixing it for NTSC
-		;trb $d06f										; clear bit 7 for PAL ; trb $d06f 
-		;tsb $d06f										; set bit 7 for NTSC  ; tsb $d06f
-
-		lda #$7f										; disable CIA interrupts
-		sta $dc0d
-		sta $dd0d
-		lda $dc0d
-		lda $dd0d
-
-		cli
-
-
-
-		sei
-
-		lda #$35
-		sta $01
-
 		lda #$00
 		sta $d020
-		lda #$0f
+		lda #$00
 		sta $d021
 
 		DMA_RUN_JOB clearcolorramjob
@@ -91,9 +71,9 @@ entry_main
 		sta $d060
 		stx $d061
 		sty $d062
-		stz $d063 ; careful. overwritten a bit later
+		stz $d063
 
-		lda #<(20+maxsprites*4+1+1)			; CHRCOUNT - Number of 16-bit characters to display per row
+		lda #<(20+maxsprites*4+1+1)						; CHRCOUNT - Number of 16-bit characters to display per row
 		sta $d05e										; display_row_width in VHDL
 		sta $c000
 		lda #>(20+maxsprites*4+1+1)
@@ -113,43 +93,6 @@ entry_main
 		sta $d064
 		lda #>COLOR_RAM_OFFSET
 		sta $d065
-
-		lda $d070										; select mapped bank with the upper 2 bits of $d070
-		and #%00111111
-		sta $d070
-		ldx #$00										; set bitmap palette
-:		lda palette+$0000,x
-		sta $d100,x
-		lda palette+$0100,x
-		sta $d200,x
-		lda palette+$0200,x
-		sta $d300,x
-		inx
-		bne :-
-		lda $d070
-		and #%11001111									; clear bits 4 and 5 (BTPALSEL) so bitmap uses palette 0
-		sta $d070
-		
-		lda #$00										; turn off audio saturation
-		sta $d712
-
-		lda #<104										; pal y border start
-		ldx #>104
-		sta verticalcenter+0
-		stx verticalcenter+1
-
-		bit $d06f
-		bpl pal
-ntsc	lda #<55
-		ldx #>55
-		sta verticalcenter+0
-		stx verticalcenter+1
-pal		lda verticalcenter+0
-		sta $d048
-		lda #%00001111
-		trb $d049
-		lda verticalcenter+1
-		tsb $d049
 
 		ldx #0
 :		lda gotox320charmemdata,x
@@ -175,6 +118,9 @@ pal		lda verticalcenter+0
 		inz
 		lda #%00001111
 		sta [zpcoldst],z
+
+		jsr rrb_clearbuckets
+		jsr rrb_finalizebuckets
 
 		lda #$7f										; disable CIA interrupts
 		sta $dc0d
@@ -206,21 +152,11 @@ loop
 irq1
 		pha
 
-		lda #$02
-		sta $d020
-
-		jsr rrb_clearbuckets
-		jsr rrb_finalizebuckets
-
-		lda #$01
-		sta $d020
+		inc $d020										; do something to show that IRQ is still running
 
 		pla
 		asl $d019
 		rti
-
-
-verticalcenter	.word 0
 
 gotox320charmemdata
 				.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
@@ -242,26 +178,6 @@ regularcharmemdata
 				.byte $ff,$22,$22,$22,$22,$22,$22,$ff
 				.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff
 
-;.segment "TABLES"
-
-sine
-.byte 255, 254, 254, 254, 254, 254, 253, 253, 252, 251, 251, 250, 249, 248, 247, 246, 245, 244, 242, 241, 240, 238, 236, 235, 233, 231, 230, 228, 226, 224, 222, 219
-.byte 217, 215, 213, 210, 208, 206, 203, 201, 198, 195, 193, 190, 187, 185, 182, 179, 176, 173, 170, 167, 164, 161, 158, 155, 152, 149, 146, 143, 140, 137, 134, 131
-.byte 128, 124, 121, 118, 115, 112, 109, 106, 103, 100, 097, 094, 091, 088, 085, 082, 079, 076, 073, 070, 068, 065, 062, 060, 057, 054, 052, 049, 047, 045, 042, 040
-.byte 038, 036, 033, 031, 029, 027, 025, 024, 022, 020, 019, 017, 015, 014, 013, 011, 010, 009, 008, 007, 006, 005, 004, 004, 003, 002, 002, 001, 001, 001, 001, 001
-.byte 001, 001, 001, 001, 001, 001, 002, 002, 003, 004, 004, 005, 006, 007, 008, 009, 010, 011, 013, 014, 015, 017, 019, 020, 022, 024, 025, 027, 029, 031, 033, 036
-.byte 038, 040, 042, 045, 047, 049, 052, 054, 057, 060, 062, 065, 068, 070, 073, 076, 079, 082, 085, 088, 091, 094, 097, 100, 103, 106, 109, 112, 115, 118, 121, 124
-.byte 127, 131, 134, 137, 140, 143, 146, 149, 152, 155, 158, 161, 164, 167, 170, 173, 176, 179, 182, 185, 187, 190, 193, 195, 198, 201, 203, 206, 208, 210, 213, 215
-.byte 217, 219, 222, 224, 226, 228, 230, 231, 233, 235, 236, 238, 240, 241, 242, 244, 245, 246, 247, 248, 249, 250, 251, 251, 252, 253, 253, 254, 254, 254, 254, 254
-
-.byte 254, 254, 254, 254, 254, 254, 253, 253, 252, 251, 251, 250, 249, 248, 247, 246, 245, 244, 242, 241, 240, 238, 236, 235, 233, 231, 230, 228, 226, 224, 222, 219
-.byte 217, 215, 213, 210, 208, 206, 203, 201, 198, 195, 193, 190, 187, 185, 182, 179, 176, 173, 170, 167, 164, 161, 158, 155, 152, 149, 146, 143, 140, 137, 134, 131
-.byte 128, 124, 121, 118, 115, 112, 109, 106, 103, 100, 097, 094, 091, 088, 085, 082, 079, 076, 073, 070, 068, 065, 062, 060, 057, 054, 052, 049, 047, 045, 042, 040
-.byte 038, 036, 033, 031, 029, 027, 025, 024, 022, 020, 019, 017, 015, 014, 013, 011, 010, 009, 008, 007, 006, 005, 004, 004, 003, 002, 002, 001, 001, 001, 001, 001
-.byte 001, 001, 001, 001, 001, 001, 002, 002, 003, 004, 004, 005, 006, 007, 008, 009, 010, 011, 013, 014, 015, 017, 019, 020, 022, 024, 025, 027, 029, 031, 033, 036
-.byte 038, 040, 042, 045, 047, 049, 052, 054, 057, 060, 062, 065, 068, 070, 073, 076, 079, 082, 085, 088, 091, 094, 097, 100, 103, 106, 109, 112, 115, 118, 121, 124
-.byte 127, 131, 134, 137, 140, 143, 146, 149, 152, 155, 158, 161, 164, 167, 170, 173, 176, 179, 182, 185, 187, 190, 193, 195, 198, 201, 203, 206, 208, 210, 213, 215
-.byte 217, 219, 222, 224, 226, 228, 230, 231, 233, 235, 236, 238, 240, 241, 242, 244, 245, 246, 247, 248, 249, 250, 251, 251, 252, 253, 253, 254, 254, 254, 254, 254
 
 ; ----------------------------------------------------------------------------------------------------
 

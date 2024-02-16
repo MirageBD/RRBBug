@@ -63,17 +63,6 @@ rrb_finalizebuckets
 
 		rts
 
-rrb_spr_width	.byte 3
-rrb_spr_height	.byte 11
-
-rrb_spr_dstx	.word 0
-rrb_spr_dsty	.byte 0
-
-rrb_spr_srcx	.byte 0
-rrb_spr_srcy	.byte 0
-
-rrb_spr_rowcnt	.byte 0
-
 ; -------------------------------------------------------------------------------------------------
 
 rrb_clearbuckets
