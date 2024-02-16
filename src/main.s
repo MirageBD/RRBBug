@@ -16,9 +16,6 @@ spritesize				= 4								; (2*(gotox+char)) ; actual chars, not NCM chars
 rrbscreenwidth			= (2*(20+maxsprites*spritesize+1+1)) ; actual chars, not NCM chars
 rrbscreenheight 		= 26
 
-screenorgwidth			= ((2*512)/8)
-screenorgheight 		= (88/8)
-
 gotox320charmem			= 320*64
 regularcharmem			= 256*64
 
@@ -215,96 +212,14 @@ loop
 irq1
 		pha
 
-		inc framelo
-;		lda framelo
-;		bne :+
-;		inc framehi
-;:		lda framehi
-;		cmp #1
-;		bne :+
-;		lda framelo
-;		cmp #(320-256)
-;		bne :+
-;		lda #0
-;		sta framelo
-;		sta framehi
-;:		
-
-		; -----------------------------------------------
-
 		lda #$02
 		sta $d020
 
 		jsr rrb_clearbuckets
-
-		lda #spritesize ; actual chars, not NCM chars
-		sta rrb_spr_width
-		lda #11
-		sta rrb_spr_height
-
-		ldx #0
-
-:		phx
-
-		inc $d020
-
-		lda sprdstposxlo,x
-		clc
-		txa
-		asl
-		asl
-		asl
-		adc framelo
-		tay
-		lda sine,y
-		sta rrb_spr_dstx+0
-		lda #0
-		sta rrb_spr_dstx+1
-
-		lda sprdstposy,x
-		;lda #0
-		;clc
-		;txa
-		;asl
-		;asl
-		;asl
-		;adc framelo
-		;adc #64
-		;tay
-		;lda sine,y
-		;lsr
-		;lsr
-		;lsr
-		;lsr
-		;lsr
-		sta rrb_spr_dsty
-
-		txa
-		clc
-		adc framelo
-		lsr
-		and #$0f
-		tax
-		lda sprsrcposx,x
-		sta rrb_spr_srcx
-		lda sprsrcposy,x
-		sta rrb_spr_srcy
-
-		jsr rrb_drawbucketsprite
-
-		plx
-		inx
-		cpx #maxsprites
-		bne :-
-
-		inc $d020
-
 		jsr rrb_finalizebuckets
 
 		lda #$01
 		sta $d020
-
-		; -----------------------------------------------
 
 		pla
 		asl $d019
@@ -312,28 +227,6 @@ irq1
 
 
 verticalcenter	.word 0
-framelo			.byte 0
-framehi			.byte 0
-
-sprdstposxlo	.repeat maxsprites, I
-					.byte <(0+I*16)
-				.endrepeat
-
-sprdstposxhi	.repeat maxsprites, I
-					.byte >(0+I*16)
-				.endrepeat
-
-sprdstposy		.repeat maxsprites, I
-					.byte I/4
-				.endrepeat
-
-sprsrcposx		.repeat 2*16, I
-					.byte (4*I).MOD 128
-				.endrepeat
-
-sprsrcposy		.repeat 2*16, I
-					.byte 0
-				.endrepeat
 
 gotox320charmemdata
 				.byte $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff

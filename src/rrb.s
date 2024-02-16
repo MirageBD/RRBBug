@@ -5,90 +5,6 @@ spriteoffset	= (2*(20)) ; actual chars, not NCM chars
 screensprites	= (screen+spriteoffset)
 coloursprites	= (SAFE_COLOR_RAM+spriteoffset)
 
-rrb_drawbucketsprite
-
-		lda #0
-		sta rrb_spr_rowcnt
-
-rrb_drawbucketsprite_loop
-
-		ldx rrb_spr_srcy								; set source pointer
-		clc
-		lda rrb_screenorgstartlo,x
-		adc rrb_spr_srcx
-		sta zpscrsrc+0
-		lda rrb_screenorgstarthi,x
-		adc #0
-		sta zpscrsrc+1
-
-		ldx rrb_spr_dsty								; set screen destination pointer
-		clc
-		lda rrb_screenbucketstartlo,x
-		adc rrb_bucketpos,x
-		sta zpscrdst+0
-		lda rrb_screenbucketstarthi,x
-		adc #0
-		sta zpscrdst+1
-
-		lda #<.hiword(coloursprites)					; set high bits of colour destination pointer
-		sta zpcoldst+2
-		lda #>.hiword(coloursprites)
-		sta zpcoldst+3
-
-		clc												; set color destination pointer
-		lda rrb_colourbucketstartlo,x
-		adc rrb_bucketpos,x
-		sta zpcoldst+0
-		lda rrb_colourbucketstarthi,x
-		adc #0
-		sta zpcoldst+1
-
-		ldz #0
-		ldy #0
-		lda #%10010000									; set gotox + transparency + position
-		sta [zpcoldst],z
-		inz
-		lda #%00000000
-		sta [zpcoldst],z
-		inz
-		lda rrb_spr_dstx+0
-		sta (zpscrdst),y
-		iny
-		lda rrb_spr_dstx+1
-		sta (zpscrdst),y
-		iny
-
-:		lda #%00001000									; set char to draw
-		sta [zpcoldst],z
-		inz
-		lda #%00001111
-		sta [zpcoldst],z
-		inz
-		lda (zpscrsrc),y								; TODO - TRY ,Z???
-		sta (zpscrdst),y
-		iny
-		lda (zpscrsrc),y
-		sta (zpscrdst),y
-		iny
-		cpy rrb_spr_width
-		bne :-
-
-		clc												; move EOL
-		lda rrb_spr_width
-		ldx rrb_spr_dsty
-		adc rrb_bucketpos,x
-		sta rrb_bucketpos,x
-
-		inc rrb_spr_dsty								; increase row
-		inc rrb_spr_srcy
-		inc rrb_spr_rowcnt
-
-		lda rrb_spr_rowcnt								; draw more rows?
-		cmp rrb_spr_height
-		lbne rrb_drawbucketsprite_loop
-
-		rts
-
 rrb_finalizebuckets
 
 		; MOVE THIS SOMEWHERE - SHOULD ALWAYS BE CONSTANT???
@@ -417,16 +333,6 @@ rrb_colourbucketstartlo
 rrb_colourbucketstarthi
 		.repeat rrbscreenheight, I
 			.byte >(coloursprites+I*rrbscreenwidth)
-		.endrepeat
-
-rrb_screenorgstartlo
-		.repeat screenorgheight, I
-			.byte <(screenorg+I*screenorgwidth/2-2)			; -2 so I can use Y which will start at 2 because the gotox chars have been plotted already
-		.endrepeat
-
-rrb_screenorgstarthi
-		.repeat screenorgheight, I
-			.byte >(screenorg+I*screenorgwidth/2-2)
 		.endrepeat
 
 ; -------------------------------------------------------------------------------------------------
