@@ -1,6 +1,6 @@
 ; -------------------------------------------------------------------------------------------------
 
-bucketsize		= (2*(maxsprites*4+1+1)) ; 20; actual chars, not NCM chars
+bucketsize		= (2*238) ; 20; actual chars, not NCM chars
 spriteoffset	= (2*(20)) ; actual chars, not NCM chars
 screensprites	= (screen+spriteoffset)
 coloursprites	= (COLOR_RAM+spriteoffset)

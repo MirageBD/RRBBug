@@ -54,7 +54,6 @@ OBJS = $(EXE_DIR)/boot.o $(EXE_DIR)/main.o
 $(EXE_DIR)/boot.o:	$(SRC_DIR)/boot.s \
 					$(SRC_DIR)/main.s \
 					$(SRC_DIR)/rrb.s \
-					$(SRC_DIR)/macros.s \
 					Makefile Linkfile
 	$(AS) $(ASFLAGS) -o $@ $<
 

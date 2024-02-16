@@ -4,13 +4,23 @@ palette					= $00400
 zpscrdst				= $f0
 zpcoldst				= $f4
 
-maxsprites				= 59							; 58 is right, 59 is wrong (with screenheight of 25)
-
-rrbscreenwidth			= (2*(20+maxsprites*4+1+1)) ; actual chars, not NCM chars
+rrbscreenwidth			= 516							; set to something >512 actual chars, not NCM chars
 rrbscreenheight 		= 25
 
 gotox320charmem			= 320*64
 regularcharmem			= 256*64
+
+.define COLOR_RAM $ff80000
+
+.macro DMA_RUN_JOB jobPointer
+		lda #(jobPointer & $ff0000) >> 16
+		sta $d702
+		sta $d704
+		lda #>jobPointer
+		sta $d701
+		lda #<jobPointer
+		sta $d705
+.endmacro
 
 ; ----------------------------------------------------------------------------------------------------
 
@@ -73,9 +83,9 @@ entry_main
 		sty $d062
 		stz $d063
 
-		lda #<(20+maxsprites*4+1+1)						; CHRCOUNT - Number of 16-bit characters to display per row
+		lda #<258										; CHRCOUNT - Number of 16-bit characters to display per row
 		sta $d05e										; display_row_width in VHDL
-		lda #>(20+maxsprites*4+1+1)
+		lda #>258
 		asl
 		asl
 		asl
