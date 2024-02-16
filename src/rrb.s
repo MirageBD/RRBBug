@@ -3,7 +3,7 @@
 bucketsize		= (2*(maxsprites*4+1+1)) ; 20; actual chars, not NCM chars
 spriteoffset	= (2*(20)) ; actual chars, not NCM chars
 screensprites	= (screen+spriteoffset)
-coloursprites	= (SAFE_COLOR_RAM+spriteoffset)
+coloursprites	= (COLOR_RAM+spriteoffset)
 
 rrb_finalizebuckets
 

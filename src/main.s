@@ -87,9 +87,9 @@ entry_main
 		sta $d058
 		stx $d059
 
-		lda #<COLOR_RAM_OFFSET							; set (offset!) pointer to colour ram
+		lda #<0											; set (offset!) pointer to colour ram
 		sta $d064
-		lda #>COLOR_RAM_OFFSET
+		lda #>0
 		sta $d065
 
 		ldx #0
@@ -101,10 +101,10 @@ entry_main
 		cpx #64
 		bne :-
 
-		lda #<.loword(SAFE_COLOR_RAM)					; poke something into colour ram
-		ldx #>.loword(SAFE_COLOR_RAM)
-		ldy #<.hiword(SAFE_COLOR_RAM)
-		ldz #>.hiword(SAFE_COLOR_RAM)
+		lda #<.loword(COLOR_RAM)						; poke something into colour ram
+		ldx #>.loword(COLOR_RAM)
+		ldy #<.hiword(COLOR_RAM)
+		ldz #>.hiword(COLOR_RAM)
 		sta zpcoldst+0
 		stx zpcoldst+1
 		sty zpcoldst+2
@@ -191,7 +191,7 @@ regularcharmemdata
 clearcolorramjob
 				.byte $0a										; Request format (f018a = 11 bytes (Command MSB is $00), f018b is 12 bytes (Extra Command MSB))
 				.byte $80, $00									; source megabyte   ($0000000 >> 20) ($00 is  chip ram)
-				.byte $81, ((SAFE_COLOR_RAM) >> 20)				; dest megabyte   ($0000000 >> 20) ($00 is  chip ram)
+				.byte $81, ((COLOR_RAM) >> 20)					; dest megabyte   ($0000000 >> 20) ($00 is  chip ram)
 				.byte $84, $00									; Destination skip rate (256ths of bytes)
 				.byte $85, $02									; Destination skip rate (whole bytes)
 
@@ -217,8 +217,8 @@ clearcolorramjob
 				.byte 0											; this is normally the high byte of the source addres (ignored for fill)
 				.byte $00										; source bank (ignored)
 
-				.word ((SAFE_COLOR_RAM) & $ffff)				; Destination Address LSB + Destination Address MSB
-				.byte (((SAFE_COLOR_RAM) >> 16) & $0f)			; Destination Address BANK and FLAGS (copy to rbBaseMem)
+				.word ((COLOR_RAM) & $ffff)						; Destination Address LSB + Destination Address MSB
+				.byte (((COLOR_RAM) >> 16) & $0f)				; Destination Address BANK and FLAGS (copy to rbBaseMem)
 																;     0–3 Memory BANK within the selected MB (0-15)
 																;       4 HOLD,      i.e., do not change the address
 																;       5 MODULO,    i.e., apply the MODULO field to wraparound within a limited memory space
@@ -247,8 +247,8 @@ clearcolorramjob
 				.byte 0											; this is normally the high byte of the source addres (ignored for fill)
 				.byte $00										; source bank (ignored)
 
-				.word (((SAFE_COLOR_RAM)+1) & $ffff)			; Destination Address LSB + Destination Address MSB
-				.byte ((((SAFE_COLOR_RAM)+1) >> 16) & $0f)		; Destination Address BANK and FLAGS (copy to rbBaseMem)
+				.word (((COLOR_RAM)+1) & $ffff)					; Destination Address LSB + Destination Address MSB
+				.byte ((((COLOR_RAM)+1) >> 16) & $0f)			; Destination Address BANK and FLAGS (copy to rbBaseMem)
 																;     0–3 Memory BANK within the selected MB (0-15)
 																;       4 HOLD,      i.e., do not change the address
 																;       5 MODULO,    i.e., apply the MODULO field to wraparound within a limited memory space
