@@ -1,20 +1,14 @@
 screen					= $06000						; currently $3000+ big
-screenorg				= $0e000						; currently $0300 big
 palette					= $00400
 charmem					= $10000
 
 zpscrdst				= $f0
 zpcoldst				= $f4
-zpscrsrc				= $f8
-
-zp0 = $80
-zp1 = $84
 
 maxsprites				= 59							; 58 is right, 59 is wrong (with screenheight of 25)
-spritesize				= 4								; (2*(gotox+char)) ; actual chars, not NCM chars
 
-rrbscreenwidth			= (2*(20+maxsprites*spritesize+1+1)) ; actual chars, not NCM chars
-rrbscreenheight 		= 26
+rrbscreenwidth			= (2*(20+maxsprites*4+1+1)) ; actual chars, not NCM chars
+rrbscreenheight 		= 25
 
 gotox320charmem			= 320*64
 regularcharmem			= 256*64
@@ -99,10 +93,10 @@ entry_main
 		sty $d062
 		stz $d063 ; careful. overwritten a bit later
 
-		lda #<(20+maxsprites*spritesize+1+1)			; CHRCOUNT - Number of 16-bit characters to display per row
+		lda #<(20+maxsprites*4+1+1)			; CHRCOUNT - Number of 16-bit characters to display per row
 		sta $d05e										; display_row_width in VHDL
 		sta $c000
-		lda #>(20+maxsprites*spritesize+1+1)
+		lda #>(20+maxsprites*4+1+1)
 		asl
 		asl
 		asl

@@ -1,6 +1,6 @@
 ; -------------------------------------------------------------------------------------------------
 
-bucketsize		= (2*(maxsprites*spritesize+1+1)) ; 20; actual chars, not NCM chars
+bucketsize		= (2*(maxsprites*4+1+1)) ; 20; actual chars, not NCM chars
 spriteoffset	= (2*(20)) ; actual chars, not NCM chars
 screensprites	= (screen+spriteoffset)
 coloursprites	= (SAFE_COLOR_RAM+spriteoffset)
@@ -63,7 +63,7 @@ rrb_finalizebuckets
 
 		rts
 
-rrb_spr_width	.byte 3									; 3 = 1 gotox + 2 chars
+rrb_spr_width	.byte 3
 rrb_spr_height	.byte 11
 
 rrb_spr_dstx	.word 0
