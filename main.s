@@ -12,7 +12,7 @@ zpcoldst				= $f4
 zpscrsrc				= $f8
 zpscrdst				= $fc
 
-chrcount				= 258							; set to something >512 actual chars, not NCM chars
+chrcount				= 258							; set to something >256 actual chars, not NCM chars
 rows			 		= 25
 
 squarechar				= 256
