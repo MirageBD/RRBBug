@@ -12,7 +12,7 @@ zpcoldst				= $f4
 zpscrsrc				= $f8
 zpscrdst				= $fc
 
-chrcount				= 516							; set to something >512 actual chars, not NCM chars
+chrcount				= 258							; set to something >512 actual chars, not NCM chars
 rows			 		= 25
 
 squarechar				= 256
@@ -124,17 +124,17 @@ entry_main
 		sty $d062
 		stz $d063
 
-		lda #<(chrcount/2)								; CHRCOUNT - Number of 16-bit characters to display per row
+		lda #<chrcount									; CHRCOUNT - Number of 16-bit characters to display per row
 		sta $d05e										; display_row_width in VHDL
-		lda #>(chrcount/2)
+		lda #>chrcount
 		asl
 		asl
 		asl
 		asl
 		sta $d063										; ..xx.... high bits of CHRCOUNT
 
-		lda #<chrcount									; LINESTEPLSB - virtual row width - number of bytes to advance between each text row 
-		ldx #>chrcount
+		lda #<(chrcount*2)								; LINESTEPLSB - virtual row width - number of bytes to advance between each text row 
+		ldx #>(chrcount*2)
 		sta $d058
 		stx $d059
 
@@ -194,11 +194,11 @@ fillcolumnsloop
 		bne :+
 		inc columncounthi
 
-:		lda columncountlo								; have we reached 2*chrcount bytes copied?
-		cmp #<(chrcount/2)
+:		lda columncountlo								; have we reached chrcount (x2) bytes copied?
+		cmp #<chrcount
 		bne :+
 		lda columncounthi
-		cmp #>(chrcount/2)
+		cmp #>chrcount
 		bne :+
 		jmp exitcolumnsfillloop
 
@@ -302,7 +302,7 @@ colourrow
 				.byte %00001000
 				.byte %00001111
 
-				.repeat ((chrcount/2) - 20 - 2)		; fill remaining with _gotox_ 320
+				.repeat (chrcount - 20 - 2)			; fill remaining with _gotox_ 320
 					.byte %10010000
 					.byte %00000000
 				.endrepeat
@@ -320,7 +320,7 @@ screenrow
 				.byte <squarechar
 				.byte >squarechar
 
-				.repeat ((chrcount/2) - 20 - 2)		; fill remaining with gotox _320_
+				.repeat (chrcount - 20 - 2)			; fill remaining with gotox _320_
 					.byte <320
 					.byte >320
 				.endrepeat
