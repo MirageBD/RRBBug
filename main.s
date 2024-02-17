@@ -124,9 +124,9 @@ entry_main
 		sty $d062
 		stz $d063
 
-		lda #<258										; CHRCOUNT - Number of 16-bit characters to display per row
+		lda #<(chrcount/2)								; CHRCOUNT - Number of 16-bit characters to display per row
 		sta $d05e										; display_row_width in VHDL
-		lda #>258
+		lda #>(chrcount/2)
 		asl
 		asl
 		asl
