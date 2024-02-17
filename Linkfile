@@ -6,5 +6,4 @@ MEMORY
 SEGMENTS
 {
 	MAIN:			load=RAM, start=$0800;
-	BUCKETS:		load=RAM, start=$c000;
 }
