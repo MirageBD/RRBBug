@@ -212,6 +212,20 @@ exitcolumnsfillloop
 
 		; ------------------------------------------------------------------------------------------------------------------------
 
+		; vertically flip the very first character to show that chargen is reading
+		; colour/attribute data from $ff80000 instead of $ff80200
+
+		set32bitzp COLOR_RAM, zpcoldst					
+
+		ldz #0
+		lda #%10001000
+		sta [zpcoldst],z
+		inz
+		lda #%00001111
+		sta [zpcoldst],z
+
+		; ------------------------------------------------------------------------------------------------------------------------
+
 		lda #$7f										; disable CIA interrupts
 		sta $dc0d
 		sta $dd0d
